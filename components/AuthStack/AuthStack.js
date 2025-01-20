@@ -1,0 +1,30 @@
+import React from 'react';
+import { createStackNavigator } from '@react-navigation/stack';
+import { NavigationContainer } from '@react-navigation/native';
+import LoginScreen from '../Auth/Login';
+import SignupScreen from '../Auth/SignUp';
+
+import MockUpScreen from '../MockUp/MockUpScreen';
+import CompleteProfileScreen from '../ProfileCmponents/CompleteScreen';
+import PreferencesScreen from '../PreferencesComp/AddPreferences';
+
+const Stack = createStackNavigator();
+
+const AuthStack = () => {
+  return (
+    <NavigationContainer>
+      <Stack.Navigator initialRouteName="PreferencesScreen">
+        <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="CompleteProfileScreen" component={CompleteProfileScreen} options={{ headerShown: false }} />
+
+        <Stack.Screen name="Signup" component={SignupScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="MockUpScreen" component={MockUpScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="PreferencesScreen" component={PreferencesScreen} options={{ headerShown: false }} />
+
+
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
+};
+
+export default AuthStack;
