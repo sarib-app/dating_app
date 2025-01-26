@@ -103,7 +103,7 @@ export const saveUserPreferences = async (preferencesData) => {
       formData.append(key, preferencesData[key]);
     });
 
-    const response = await fetch(`${preferencesData.baseUrl}/post_user_preferences`, {
+    const response = await fetch(`https://muslimdating.coderisehub.com/api/post_user_preferences`, {
       method: 'POST',
       body: formData,
       headers: {
@@ -134,5 +134,76 @@ export const saveUserPreferences = async (preferencesData) => {
       message: "Something went wrong while saving preferences",
       error: error.message
     };
+  }
+};
+
+
+// Global/Calls/UserActions.js
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+export const likeUser = async (likedUserId) => {
+  try {
+    const userId = await AsyncStorage.getItem('user_id');
+    const formdata = new FormData();
+    formdata.append("user_id", "2");
+    formdata.append("liked_user_id", "1");
+
+    const response = await fetch("https://muslimdating.coderisehub.com/api/like_user", {
+      method: "POST",
+      body: formdata,
+    });
+    return await response.json();
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const followUser = async (followedId) => {
+  try {
+    // const token = await AsyncStorage.getItem('token');
+    const userId = await AsyncStorage.getItem('user_id');
+    const token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL211c2xpbWRhdGluZy5jb2RlcmlzZWh1Yi5jb20vYXBpL2xvZ2luX3VzZXIiLCJpYXQiOjE3Mzc4MjEzMzgsImV4cCI6MTczNzgyNDkzOCwibmJmIjoxNzM3ODIxMzM4LCJqdGkiOiJ4ZW1sSEhPc2tKZlJXdmVGIiwic3ViIjoiMiIsInBydiI6IjIzYmQ1Yzg5NDlmNjAwYWRiMzllNzAxYzQwMDg3MmRiN2E1OTc2ZjcifQ.YIpDQrAoo3EVyZjno67YQD5_s9USiIFnL6pHP1drJ-M"
+    
+    const formdata = new FormData();
+    formdata.append("follower_id", "2");
+    formdata.append("followed_id", "1");
+
+    const response = await fetch(
+      "https://muslimdating.coderisehub.com/api/send_follow_request", 
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formdata,
+      }
+    );
+    return await response.json();
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const unfollowUser = async (followedId) => {
+  try {
+    // const token = await AsyncStorage.getItem('token');
+    const token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL211c2xpbWRhdGluZy5jb2RlcmlzZWh1Yi5jb20vYXBpL2xvZ2luX3VzZXIiLCJpYXQiOjE3Mzc4MjEzMzgsImV4cCI6MTczNzgyNDkzOCwibmJmIjoxNzM3ODIxMzM4LCJqdGkiOiJ4ZW1sSEhPc2tKZlJXdmVGIiwic3ViIjoiMiIsInBydiI6IjIzYmQ1Yzg5NDlmNjAwYWRiMzllNzAxYzQwMDg3MmRiN2E1OTc2ZjcifQ.YIpDQrAoo3EVyZjno67YQD5_s9USiIFnL6pHP1drJ-M"
+
+    const formdata = new FormData();
+    formdata.append("followed_id", "1");
+
+    const response = await fetch(
+      "https://muslimdating.coderisehub.com/api/unfollow",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formdata,
+      }
+    );
+    return await response.json();
+  } catch (error) {
+    throw error;
   }
 };

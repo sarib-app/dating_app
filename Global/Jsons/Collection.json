@@ -1,0 +1,84 @@
+{
+    "message": "Profiles fetched successfully.",
+    "status": 200,
+    "data": {
+      "current_page": 1,
+      "data": [
+        {
+          "user_id": 1,
+          "age": 25,
+          "location": "Lahore",
+          "gender": "Female", 
+          "interests": "Photography, Travel, Reading",
+          "bio": "Living life one adventure at a time. Love exploring new places and trying new things. Looking for someone who shares my passion for life!",
+          "ethnicity": "Urdu speaking",
+          "height": "5'6\"",
+          "martial_status": "Never Married",
+          "children": "No children",
+          "education": "Masters in Business",
+          "profession": "Marketing Manager",
+          "religion": "Islam",
+          "religious_sector": "Sunni",
+          "personality": "Extrovert",
+          "id": 1,
+          "first_name": "Sarah",
+          "images": [
+            {
+              "id": 1,
+              "user_id": 1,
+              "image_path": "user_images/sarah1.jpg",
+              "is_profile_picture": 1
+            }
+          ],
+          "already_followed": false,
+          "already_liked": false
+        },
+        {
+          "user_id": 2,
+          "age": 28,
+          "location": "Karachi",
+          "gender": "Female",
+          "interests": "Cooking, Art, Music, Reading",
+          "bio": "Creative soul with a passion for art and music. Looking for someone who appreciates the finer things in life.",
+          "ethnicity": "Punjabi",
+          "height": "5'4\"",
+          "martial_status": "Never Married",
+          "children": "No children",
+          "education": "Bachelors in Fine Arts",
+          "profession": "Graphic Designer",
+          "religion": "Islam",
+          "religious_sector": "Sunni",
+          "personality": "Introvert",
+          "id": 2,
+          "first_name": "Amina",
+          "images": [],
+          "already_followed": false,
+          "already_liked": true
+        },
+        {
+          "user_id": 3,
+          "age": 30,
+          "location": "Islamabad",
+          "gender": "Female",
+          "interests": "Fitness, Yoga, Healthy Living",
+          "bio": "Health enthusiast and fitness trainer. Seeking someone who values wellness and an active lifestyle.",
+          "ethnicity": "Pathan",
+          "height": "5'7\"",
+          "martial_status": "Divorced",
+          "children": "One child",
+          "education": "Bachelors in Sports Science",
+          "profession": "Fitness Trainer",
+          "religion": "Islam",
+          "religious_sector": "Sunni",
+          "personality": "Extrovert",
+          "id": 3,
+          "first_name": "Zara",
+          "images": [],
+          "already_followed": true,
+          "already_liked": false
+        }
+      ],
+      "per_page": 10,
+      "total": 3
+    }
+   }

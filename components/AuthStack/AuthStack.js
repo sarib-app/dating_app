@@ -7,19 +7,28 @@ import SignupScreen from '../Auth/SignUp';
 import MockUpScreen from '../MockUp/MockUpScreen';
 import CompleteProfileScreen from '../ProfileCmponents/CompleteScreen';
 import PreferencesScreen from '../PreferencesComp/AddPreferences';
+import BottomNavigation from '../BottomNavigation/BottomNavigation';
+import ProfilePreviewScreen from '../ProfileCmponents/ProfilePreview';
+import ProfileDetailsScreen from '../ProfileCmponents/ProfileDetails';
 
 const Stack = createStackNavigator();
 
 const AuthStack = () => {
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="PreferencesScreen">
+      <Stack.Navigator initialRouteName="BottomNavigation">
         <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
         <Stack.Screen name="CompleteProfileScreen" component={CompleteProfileScreen} options={{ headerShown: false }} />
 
         <Stack.Screen name="Signup" component={SignupScreen} options={{ headerShown: false }} />
         <Stack.Screen name="MockUpScreen" component={MockUpScreen} options={{ headerShown: false }} />
         <Stack.Screen name="PreferencesScreen" component={PreferencesScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="BottomNavigation" component={BottomNavigation} options={{ headerShown: false }} />
+        <Stack.Screen name="ProfilePreviewScreen" component={ProfilePreviewScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="ProfileDetailsScreen" component={ProfileDetailsScreen} options={{ headerShown: false }} />
+
+
+
 
 
       </Stack.Navigator>
