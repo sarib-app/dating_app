@@ -25,7 +25,7 @@ const PROFILE_IMAGE_SIZE = 100;
 
 const ProfileDetailsScreen = ({ route }) => {
     const navigation = useNavigation()
-  const { user } = route?.params ?route.user : "null"
+  const { user } = route?.params ?route.params : "null"
   const [currentUserId, setCurrentUserId] = useState(null);
   const [profileData, setProfileData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -44,7 +44,7 @@ const ProfileDetailsScreen = ({ route }) => {
     try {
     //   const token = await AsyncStorage.getItem('token');
 
-    const token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL211c2xpbWRhdGluZy5jb2RlcmlzZWh1Yi5jb20vYXBpL2xvZ2luX3VzZXIiLCJpYXQiOjE3Mzc5MjA1NTUsImV4cCI6MTczNzkyNDE1NSwibmJmIjoxNzM3OTIwNTU1LCJqdGkiOiJtSnhQbjZ6SWptWUJPZWowIiwic3ViIjoiMiIsInBydiI6IjIzYmQ1Yzg5NDlmNjAwYWRiMzllNzAxYzQwMDg3MmRiN2E1OTc2ZjcifQ.y-zpIt4BukwrTbZ5uAVDePyRcJb9SnwcjgW3qvk3nKg"
+    const token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL211c2xpbWRhdGluZy5jb2RlcmlzZWh1Yi5jb20vYXBpL2xvZ2luX3VzZXIiLCJpYXQiOjE3MzgxNzA2ODEsImV4cCI6MTczODE3NDI4MSwibmJmIjoxNzM4MTcwNjgxLCJqdGkiOiI1bmQyRGVqTDlzcXdEQXg0Iiwic3ViIjoiMiIsInBydiI6IjIzYmQ1Yzg5NDlmNjAwYWRiMzllNzAxYzQwMDg3MmRiN2E1OTc2ZjcifQ.zyv27uza0D0dShPiixqddevH4S3Nk5_epL9HrK-OSFs"
       const response = await fetch(
         `https://muslimdating.coderisehub.com/api/fetch_user_by_id/2`,
         {
@@ -247,6 +247,17 @@ const ProfileDetailsScreen = ({ route }) => {
                   name={profileData?.profile.already_liked ? "heart" : "heart-outline"}
                   size={24} 
                   color={profileData?.profile.already_liked ? "#fff" : Colors.FontColorI}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity 
+            
+                style={[styles.iconButton, profileData?.profile.already_liked && styles.likedButton]}
+                onPress={()=>navigation.navigate("ProfileSrc")}
+              >
+                <Ionicons 
+                  name={"setting" }
+                  size={24} 
+                  color={Colors.FontColorI}
                 />
               </TouchableOpacity>
             </View>

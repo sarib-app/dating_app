@@ -5,6 +5,8 @@ import Colors from '../../Global/Branding/colors';
 import HomeScreen from '../Home/HomeScreen';
 import ExploreScreen from '../Explore/Explore';
 import ProfileDetailsScreen from '../ProfileCmponents/ProfileDetails';
+import Profile from '../Porfile/Porfile';
+import LikedProfilesScreen from '../LikeProfiles/LikeProfiles';
 
 const Tab = createBottomTabNavigator();
 
@@ -46,9 +48,11 @@ const BottomNavigation = () => {
       })}
       
     >
-      <Tab.Screen name="Home" component={HomeScreen} />
+      <Tab.Screen name="Liked" component={LikedProfilesScreen} />
       <Tab.Screen name="Explore" component={ExploreScreen} />
       <Tab.Screen name="Profile" component={ProfileDetailsScreen} />
+      <Tab.Screen name="Settings" component={Profile} />
+
 
     </Tab.Navigator>
   );
