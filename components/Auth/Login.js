@@ -73,7 +73,7 @@ async function LoginCall(){
     <View style={GlobalStyles.Container}>
       <View style={AuthStyles.TitleWraper}>
         <Ionicons name="chevron-back-outline" size={28} color={Colors.FontColorI} />
-      <Text style={AuthStyles.title}>Welocome</Text>
+      <Text style={AuthStyles.title}>Welcome</Text>
       <Text style={AuthStyles.titleTwo}>Login To Continue</Text>
   
 
