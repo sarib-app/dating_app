@@ -34,19 +34,30 @@ const SignupScreen = ({ navigation }) => {
   }
   
   async function Register_Call(){
-
+setLoading(true)
     const userData = {
-      email: "Darrick.Howell46@gmail.com",
-      firstName: "Einar",
-      phoneNo: "772-234-0931",
-      password: "1234567",
-      passwordConfirmation: "1234567",
+      email: email,
+      firstName: name,
+      phoneNo: phone,
+      password: password,
+      passwordConfirmation: password,
       baseUrl: "https://your-api-base-url.com", // Replace with your actual base URL
     };
   
     try {
       const result = await registerUser(userData);
+    if(result.status === 200){
+      AsyncStorage.setItem("user",JSON.stringify(result.user))
+      AsyncStorage.setItem("token",result.token)
+      navigation.navigate("CompleteProfileScreen")
+      // setLoading(false)
       console.log("Registration Successful:", result);
+    
+    }
+    else if(result.status ===401){
+      Alert.alert("Error",result.errors)
+
+    }
     } catch (error) {
       console.error("Registration Failed:", error);
       Alert.alert("Error","Someting Went Wrong!")

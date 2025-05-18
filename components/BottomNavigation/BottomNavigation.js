@@ -25,18 +25,18 @@ const BottomNavigation = () => {
         tabBarIcon: ({ color, size }) => {
           let iconName;
 
-          if (route.name === 'Home') {
-            iconName = 'home-outline';
+          if (route.name === 'Liked') {
+            iconName = 'heart-outline';
           } else if (route.name === 'Explore') {
-            iconName = 'cash-outline';
+            iconName = 'search';
           } else if (route.name === 'Profile') {
             iconName = 'person-outline';
           }
           else if (route.name === 'Favorites') {
             iconName = 'heart-circle-outline';
           }
-          else if (route.name === 'Notifications') {
-            iconName = 'notifications';
+          else if (route.name === 'Settings') {
+            iconName = 'settings';
           }
 
 

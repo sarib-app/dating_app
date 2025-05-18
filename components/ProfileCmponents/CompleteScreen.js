@@ -148,25 +148,29 @@ const CompleteProfileScreen = ({ navigation }) => {
     setModalVisible(false);
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async () => {  
     if (!validateStep()) return;
 
     setLoading(true);
     try {
-      const userId = await AsyncStorage.getItem('user_id');
-      const baseUrl = await AsyncStorage.getItem('baseUrl');
-
+      
+      const user = await AsyncStorage.getItem('user');
+      const parsedUSer = JSON.parse(user)
+      const baseUrl = "await AsyncStorage.getItem('baseUrl');"
+if(!parsedUSer){
+  return
+}
       const profilePayload = {
         ...formData,
-        user_id: userId,
+        user_id: parsedUSer.id,
         baseUrl: baseUrl
       };
 
       const result = await completeUserProfile(profilePayload);
       
-      if (result.status === "200") {
-        Alert.alert('Success', 'Profile completed successfully!');
-        navigation.navigate('MainApp');
+      if (result.status === 200) {
+        Alert.alert('Success', result.message);
+        navigation.navigate('PreferencesScreen');
       } else {
         Alert.alert('Error', result.message || 'Something went wrong');
       }

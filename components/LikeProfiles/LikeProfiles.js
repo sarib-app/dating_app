@@ -14,33 +14,36 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import Colors from '../../Global/Branding/colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useNavigation } from '@react-navigation/native';
+import { useIsFocused, useNavigation } from '@react-navigation/native';
+import { baseUrl } from '../Global/Urls';
 
 const { width } = Dimensions.get('window');
 
 const LikedProfilesScreen = () => {
+  const focused = useIsFocused()
   const navigation = useNavigation();
   const [likedProfiles, setLikedProfiles] = useState([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     fetchLikedProfiles();
-  }, []);
+  }, [focused]);
 
   const fetchLikedProfiles = async () => {
-    setLoading(true);
+    // setLoading(true);
     try {
-      // const token = await AsyncStorage.getItem('token');
-      // const userId = await AsyncStorage.getItem('user_id');
-      
-      const token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL211c2xpbWRhdGluZy5jb2RlcmlzZWh1Yi5jb20vYXBpL2xvZ2luX3VzZXIiLCJpYXQiOjE3MzgxNzA2ODEsImV4cCI6MTczODE3NDI4MSwibmJmIjoxNzM4MTcwNjgxLCJqdGkiOiI1bmQyRGVqTDlzcXdEQXg0Iiwic3ViIjoiMiIsInBydiI6IjIzYmQ1Yzg5NDlmNjAwYWRiMzllNzAxYzQwMDg3MmRiN2E1OTc2ZjcifQ.zyv27uza0D0dShPiixqddevH4S3Nk5_epL9HrK-OSFs"
-      // const userId = await AsyncStorage.getItem('user_id');
-
+      const token = await AsyncStorage.getItem('token');
+      const user = await AsyncStorage.getItem('user');
+      const parsedUSer = JSON.parse(user)
+      if(!parsedUSer){
+        return
+      }
+ 
       const formdata = new FormData();
-      formdata.append("user_id", "2");
+      formdata.append("user_id",parsedUSer.id)
 
       const response = await fetch(
-        "https://muslimdating.coderisehub.com/api/get_liked_profiles",
+        `${baseUrl}get_liked_profiles`,
         {
           method: "POST",
           headers: {
@@ -50,8 +53,11 @@ const LikedProfilesScreen = () => {
         }
       );
       const result = await response.json();
-      if (result.status === 200) {
+      if (result.status === 200) { 
         setLikedProfiles(result.liked_profiles);
+      }
+      else{
+        Alert.alert("Error", result.message || result.error)
       }
     } catch (error) {
       Alert.alert('Error', 'Failed to fetch liked profiles');

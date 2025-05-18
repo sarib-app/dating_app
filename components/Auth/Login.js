@@ -13,15 +13,15 @@ import LoadingModal from '../../Global/components/LoadingModal';
 import Ellipse from "../../assets/images/Ellipse.png"
 import EllipseII from "../../assets/images/EllipseII.png"
 const LoginScreen = ({ navigation }) => {
-  const [phone, setPhone] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setemail] = useState('Elza.Littel34@gmail.com');
+  const [password, setPassword] = useState('1234567');
   const [isPressed, setIspressed] = useState(false);
   const [loading, setLoading] = useState(false);
 
 
 async function handleLogin(){
   // navigation.navigate("BottomNavigation")
-  if(phone && password){
+  if(email && password){
     LoginCall()
   }else{
     
@@ -32,8 +32,8 @@ async function handleLogin(){
 async function LoginCall(){
 
   const credentials = {
-    email: "Gerardo93@yahoo.com",
-    password: "1234567",
+    email: email,
+    password: password,
     baseUrl: "https://your-api-base-url.com", // Replace with your actual base URL
   };
   setLoading(true)
@@ -43,13 +43,13 @@ async function LoginCall(){
     console.log("Login Successful:", result);
 
  
-    if(result.status === "200"){
+    if(result.status === 200){
         AsyncStorage.setItem("user",JSON.stringify(result.user))
         AsyncStorage.setItem("token",result.token)
         navigation.navigate("BottomNavigation")
         setLoading(false)
     }
-    else if(result.status === "401"){
+    else if(result.status ===401){
         Alert.alert("Error",result.message)
         setLoading(false)
     }
@@ -79,14 +79,14 @@ async function LoginCall(){
 
       </View>
       <InputTitle 
-      value={"Phone"}
+      value={"email"}
       />
       <InputField
         icon="call-outline"
-        placeholder="Phone"
-        keyboardType="phone-pad"
-        value={phone}
-        onChangeText={setPhone}
+        placeholder="email"
+        // keyboardType="email-pad"
+        value={email}
+        onChangeText={setemail}
         pressed={isPressed}
       />
          <InputTitle 

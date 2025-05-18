@@ -22,6 +22,7 @@ import InputField from '../../Global/components/InputField';
 import LoadingModal from '../../Global/components/LoadingModal';
 // import { saveUserPreferences } from '../Calls/ApiCalls';
 import { saveUserPreferences } from '../../Global/Calls/ApiCalls';
+import { baseUrl } from '../Global/Urls';
 
 
 const { height } = Dimensions.get('window');
@@ -68,12 +69,13 @@ const PreferencesModal = ({ visible, onClose }) => {
 
   const fetchPreferences = async () => {
     try {
-      const userId = await AsyncStorage.getItem('user_id');
+      const user = await AsyncStorage.getItem('user');
+      const parsedUser = JSON.parse(user)
       const formdata = new FormData();
-      formdata.append("user_id", "2");
+      formdata.append("user_id", parsedUser.id);
 
       const response = await fetch(
-        "https://muslimdating.coderisehub.com/api/get_user_preferences",
+        `${baseUrl}get_user_preferences`,
         {
           method: "POST",
           body: formdata,
@@ -137,16 +139,15 @@ const PreferencesModal = ({ visible, onClose }) => {
 
     setLoading(true);
     try {
-      const userId = await AsyncStorage.getItem('user_id');
-      const baseUrl = await AsyncStorage.getItem('baseUrl');
-
+      const user = await AsyncStorage.getItem('user');
+const parsedUSer = JSON.parse(user)
       const result = await saveUserPreferences({
         ...preferences,
-        user_id: "2",
+        user_id: parsedUSer.id,
         baseUrl: "baseUrl"
       });
       
-      if (result.status === "200") {
+      if (result.status === 200) {
         Alert.alert('Success', 'Preferences updated successfully');
         onClose();
       } else {

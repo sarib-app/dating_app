@@ -19,46 +19,84 @@ import Colors from '../../Global/Branding/colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 // import { likeUser, followUser, unfollowUser } from '../../Global/Calls/UserActions';
 import { likeUser,followUser, unfollowUser } from '../../Global/Calls/ApiCalls';
-import { useNavigation } from '@react-navigation/native';
+import { useIsFocused, useNavigation } from '@react-navigation/native';
+import { baseUrl } from '../Global/Urls';
 const { width } = Dimensions.get('window');
 const PROFILE_IMAGE_SIZE = 100;
 
 const ProfileDetailsScreen = ({ route }) => {
     const navigation = useNavigation()
+    const focused  = useIsFocused()
   const { user } = route?.params ?route.params : "null"
   const [currentUserId, setCurrentUserId] = useState(null);
+  const [token,setToken]=useState("")
   const [profileData, setProfileData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-
+  const [isOwnProfile,setISOwnProfile]=useState(true)
+  // const isOwnProfile = currentUserId === profileData?.profile.user_id.toString();
+// console.log(user)
   useEffect(() => {
-    fetchUserProfile();
     getCurrentUserId();
-  }, []);
+  }, [focused]);
 
   const getCurrentUserId = async () => {
-    const userId = await AsyncStorage.getItem('user_id');
-    setCurrentUserId(userId);
+    const user_get = await AsyncStorage.getItem('user')
+    const parsedUser= await JSON.parse(user_get)
+    console.log("1.1",parsedUser.id,user.id)
+
+    if(parsedUser.id == user.id){
+      console.log("1")
+      setISOwnProfile(true)
+      setCurrentUserId(parsedUser.id);  
+    fetchUserProfile(parsedUser.id);
+
+
+    }else if(parsedUser.id != user.id && user != "null" ){
+      console.log("2")
+
+      setISOwnProfile(false)
+      setCurrentUserId(user.id);       
+    fetchUserProfile(user.id);
+
+
+    }else{
+      console.log("3")
+
+      setISOwnProfile(true)
+      setCurrentUserId(parsedUser.id);     
+    fetchUserProfile(parsedUser.id);
+
+
+    }
   };
 
   const fetchUserProfile = async () => {
+    console.log("ss")
     try {
-    //   const token = await AsyncStorage.getItem('token');
-
-    const token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL211c2xpbWRhdGluZy5jb2RlcmlzZWh1Yi5jb20vYXBpL2xvZ2luX3VzZXIiLCJpYXQiOjE3MzgxNzA2ODEsImV4cCI6MTczODE3NDI4MSwibmJmIjoxNzM4MTcwNjgxLCJqdGkiOiI1bmQyRGVqTDlzcXdEQXg0Iiwic3ViIjoiMiIsInBydiI6IjIzYmQ1Yzg5NDlmNjAwYWRiMzllNzAxYzQwMDg3MmRiN2E1OTc2ZjcifQ.zyv27uza0D0dShPiixqddevH4S3Nk5_epL9HrK-OSFs"
-      const response = await fetch(
-        `https://muslimdating.coderisehub.com/api/fetch_user_by_id/2`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+      const token = await AsyncStorage.getItem('token');
+      const user = await AsyncStorage.getItem('user')
+      const parsedUser= await JSON.parse(user)
+      if(token){
+        setToken(token)
+        const response = await fetch(
+          `${baseUrl}fetch_user_by_id/${parsedUser.id}`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        const result = await response.json();
+        if (result.status === 200) {
+          console.log("user >>>>", result)
+          setProfileData(result.user);
         }
-      );
-      const result = await response.json();
-      if (result.status === 200) {
-        setProfileData(result.user);
       }
-    } catch (error) {
+      }
+
+    // const token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL211c2xpbWRhdGluZy5jb2RlcmlzZWh1Yi5jb20vYXBpL2xvZ2luX3VzZXIiLCJpYXQiOjE3MzgxNzA2ODEsImV4cCI6MTczODE3NDI4MSwibmJmIjoxNzM4MTcwNjgxLCJqdGkiOiI1bmQyRGVqTDlzcXdEQXg0Iiwic3ViIjoiMiIsInBydiI6IjIzYmQ1Yzg5NDlmNjAwYWRiMzllNzAxYzQwMDg3MmRiN2E1OTc2ZjcifQ.zyv27uza0D0dShPiixqddevH4S3Nk5_epL9HrK-OSFs"
+     catch (error) {
       Alert.alert('Error', 'Failed to fetch profile details');
     } finally {
       setIsLoading(false);
@@ -69,9 +107,9 @@ const ProfileDetailsScreen = ({ route }) => {
     try {
       let response;
       if (profileData?.profile.already_followed) {
-        response = await unfollowUser(profileData.profile.user_id);
+        response = await unfollowUser(profileData.profile.user_id,token);
       } else {
-        response = await followUser(profileData.profile.user_id);
+        response = await followUser(profileData.profile.user_id,token,currentUserId);
       }
       
       if (response.status === 200) {
@@ -92,7 +130,7 @@ const ProfileDetailsScreen = ({ route }) => {
 
   const handleLike = async () => {
     try {
-      const response = await likeUser(profileData.profile.user_id);
+      const response = await likeUser(profileData.profile.user_id,currentUserId);
       if (response.status === 200) {
         setProfileData(prev => ({
           ...prev,
@@ -169,7 +207,6 @@ const ProfileDetailsScreen = ({ route }) => {
     );
   }
 
-  const isOwnProfile = currentUserId === profileData?.profile.user_id.toString();
 
   return (
     <View style={styles.container}>

@@ -128,7 +128,6 @@ const PreferencesScreen = ({ navigation }) => {
 
   const handleBack = () => {
     setCurrentStep(prev => prev - 1);
-
     // if (currentStep === 0) {
     //   navigation.goBack();
     // } else {
@@ -151,23 +150,26 @@ const PreferencesScreen = ({ navigation }) => {
 
     setLoading(true);
     try {
-      const userId = await AsyncStorage.getItem('user_id');
-      const baseUrl = await AsyncStorage.getItem('baseUrl');
-
+      const user = await AsyncStorage.getItem('user');
+      const parsedUSer = JSON.parse(user)
+      const baseUrl = "await AsyncStorage.getItem('baseUrl');"
+if(!parsedUSer){
+  return
+}
       const preferencesPayload = {
         ...formData,
-        user_id: userId,
+        user_id: parsedUSer.id,
         baseUrl: baseUrl
       };
 
       const result = await saveUserPreferences(preferencesPayload);
       
-      if (result.status === "200") {
+      if (result.status === 200) {
         Alert.alert(
           'Success', 
           'Perfect! Your preferences have been saved. Ready to start searching!',
           [
-            { text: 'Start Searching', onPress: () => navigation.navigate('MainApp') }
+            { text: 'Start Searching', onPress: () => navigation.navigate('BottomNavigation') }
           ]
         );
       } else {
@@ -180,6 +182,7 @@ const PreferencesScreen = ({ navigation }) => {
       setLoading(false);
     }
   };
+
   return (
     <View style={styles.container}>
       {/* Header */}

@@ -12,6 +12,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import Colors from '../../Global/Branding/colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { baseUrl } from '../Global/Urls';
 
 const ProfilePreviewScreen = ({ route, navigation }) => {
   const { item } = route.params;
@@ -20,15 +21,19 @@ const ProfilePreviewScreen = ({ route, navigation }) => {
 
   const handleFollow = async () => {
     try {
-      const userId = await AsyncStorage.getItem('user_id');
+      const user = await AsyncStorage.getItem('user');
+      const parsedUSer = JSON.parse(user)
+      if(!parsedUSer){
+       return
+      }
       const formdata = new FormData();
       
       if (!isFollowing) {
-        formdata.append("follower_id", userId);
+        formdata.append("follower_id", parsedUSer.id);
         formdata.append("followed_id", item.id);
         
         const response = await fetch(
-          "https://muslimdating.coderisehub.com/api/send_follow_request",
+          `${baseUrl}send_follow_request`,
           {
             method: "POST",
             body: formdata,
@@ -43,7 +48,7 @@ const ProfilePreviewScreen = ({ route, navigation }) => {
         formdata.append("followed_id", item.id);
         
         const response = await fetch(
-          "https://muslimdating.coderisehub.com/api/unfollow",
+          `${baseUrl}unfollow`,
           {
             method: "POST",
             body: formdata,
@@ -61,15 +66,15 @@ const ProfilePreviewScreen = ({ route, navigation }) => {
   };
 
   const handleLike = async () => {
-    console.log("22")
     try {
-      const userId = await AsyncStorage.getItem('user_id');
+      const user = await AsyncStorage.getItem('user');
+      const parsedUSer = JSON.parse(user)
       const formdata = new FormData();
-      formdata.append("user_id", "2");
-      formdata.append("liked_user_id", "1");
+      formdata.append("user_id", parsedUSer.id);
+      formdata.append("liked_user_id", item.id);
 
       const response = await fetch(
-        "https://muslimdating.coderisehub.com/api/like_user",
+        `${baseUrl}like_user`,
         {
           method: "POST",
           body: formdata,
@@ -152,7 +157,7 @@ const ProfilePreviewScreen = ({ route, navigation }) => {
 
             <TouchableOpacity 
               style={styles.viewProfileButton}
-              onPress={() => navigation.navigate('ProfileDetailsScreen', { item })}
+              onPress={() => navigation.navigate('ProfileDetailsScreen', { user:item })}
             >
               <Text style={styles.viewProfileText}>View Profile</Text>
             </TouchableOpacity>

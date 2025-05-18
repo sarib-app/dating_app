@@ -17,6 +17,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 // import PreferencesModal from '../../Global/components/PreferencesModal';
 import PreferencesModal from '../PreferencesComp/PreferenceMOdal';
 import { useNavigation } from '@react-navigation/native';
+import { baseUrl } from '../Global/Urls';
+import { useIsFocused } from '@react-navigation/native';
 const { width } = Dimensions.get('window');
 
 const CATEGORIES = ['All', 'Public', 'Private', 'Liked', 'Followed', 'Introvert', 'Extrovert'];
@@ -74,6 +76,7 @@ const dummyMatches = {
 
 const ExploreScreen = () => {
     const navigation = useNavigation()
+    const focused = useIsFocused()
   const [matches, setMatches] = useState([]);
   const [selectedCategories, setSelectedCategories] = useState(['All']);
   const [showPreferencesModal, setShowPreferencesModal] = useState(false);
@@ -81,18 +84,22 @@ const ExploreScreen = () => {
 
   useEffect(() => {
     fetchMatches();
-  }, []);
+  }, [focused]);
 
   const fetchMatches = async () => {
     setLoading(true);
     try {
       const token = await AsyncStorage.getItem('token');
+      const user = await AsyncStorage.getItem('user');
+      const parsedUSer = JSON.parse(user)
+      if(!parsedUSer){
+      return
+      }
       const myHeaders = new Headers();
       myHeaders.append("Authorization", `Bearer ${token}`);
-      
       const formdata = new FormData();
       const response = await fetch(
-        "https://muslimdating.coderisehub.com/api/find_matches",
+        `${baseUrl}find_matches`,
         {
           method: "POST",
           headers: myHeaders,
@@ -100,8 +107,9 @@ const ExploreScreen = () => {
         }
       );
       const result = await response.json();
+      console.log(result)
       if (result.status === 200) {
-        // setMatches(result.matches);
+        setMatches(result.matches);
       }
     } catch (error) {
       // For testing, use dummy data on error
@@ -188,18 +196,18 @@ const ExploreScreen = () => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
+        <View style={styles.header}>
         <Text style={styles.headerTitle}>Matches</Text>
         <TouchableOpacity onPress={() => setShowPreferencesModal(true)}>
-          <Ionicons name="filter" size={24} color={Colors.FontColorI} />
+        <Ionicons name="filter" size={24} color={Colors.FontColorI} />
         </TouchableOpacity>
-      </View>
-<View style={{height:60}}>
-<ScrollView 
+        </View>
+        <View style={{height:60}}>
+        <ScrollView 
         horizontal 
         showsHorizontalScrollIndicator={false}
         style={styles.categoriesContainer}
-      >
+        >
         {CATEGORIES.map(category => (
           <TouchableOpacity
             key={category}
@@ -218,8 +226,7 @@ const ExploreScreen = () => {
           </TouchableOpacity>
         ))}
       </ScrollView>
-</View>
-   
+      </View>
 
       <FlatList
         data={filterMatches()}
