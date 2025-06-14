@@ -13,6 +13,7 @@ import ProfileDetailsScreen from '../ProfileCmponents/ProfileDetails';
 import Profile from '../Porfile/Porfile';
 import OtherProfileScreen from '../ProfileCmponents/OtherProfileDetail';
 import EditProfileScreen from '../ProfileCmponents/EditProfileDetail';
+import ImageGalleryScreen from '../ImageGallerySrc.js/ImageGallery';
 
 const Stack = createStackNavigator();
 
@@ -31,6 +32,8 @@ const AuthStack = () => {
         <Stack.Screen name="OtherProfileScreen" component={OtherProfileScreen} options={{ headerShown: false }} />
         <Stack.Screen name="ProfileSrc" component={Profile} options={{ headerShown: false }} />
         <Stack.Screen name="EditProfileScreen" component={EditProfileScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="ImageGalleryScreen" component={ImageGalleryScreen} options={{ headerShown: false }} />
+
 
       </Stack.Navigator>
     </NavigationContainer>

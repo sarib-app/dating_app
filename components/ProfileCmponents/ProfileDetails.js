@@ -108,8 +108,8 @@ const ProfileDetailsScreen = () => {
           <Text style={styles.emptyGalleryText}>No photos added yet</Text>
           <TouchableOpacity 
             style={styles.addPhotoButton}
-            onPress={() => {/* Navigate to add photos */}}
-          >
+            onPress={() => navigation.navigate("ImageGalleryScreen")}
+            >
             <Text style={styles.addPhotoText}>Add Photos</Text>
           </TouchableOpacity>
         </View>
