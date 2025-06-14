@@ -11,6 +11,8 @@ import BottomNavigation from '../BottomNavigation/BottomNavigation';
 import ProfilePreviewScreen from '../ProfileCmponents/ProfilePreview';
 import ProfileDetailsScreen from '../ProfileCmponents/ProfileDetails';
 import Profile from '../Porfile/Porfile';
+import OtherProfileScreen from '../ProfileCmponents/OtherProfileDetail';
+import EditProfileScreen from '../ProfileCmponents/EditProfileDetail';
 
 const Stack = createStackNavigator();
 
@@ -26,7 +28,10 @@ const AuthStack = () => {
         <Stack.Screen name="BottomNavigation" component={BottomNavigation} options={{ headerShown: false }} />
         <Stack.Screen name="ProfilePreviewScreen" component={ProfilePreviewScreen} options={{ headerShown: false }} />
         <Stack.Screen name="ProfileDetailsScreen" component={ProfileDetailsScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="OtherProfileScreen" component={OtherProfileScreen} options={{ headerShown: false }} />
         <Stack.Screen name="ProfileSrc" component={Profile} options={{ headerShown: false }} />
+        <Stack.Screen name="EditProfileScreen" component={EditProfileScreen} options={{ headerShown: false }} />
+
       </Stack.Navigator>
     </NavigationContainer>
   );

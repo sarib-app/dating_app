@@ -157,7 +157,7 @@ const ProfilePreviewScreen = ({ route, navigation }) => {
 
             <TouchableOpacity 
               style={styles.viewProfileButton}
-              onPress={() => navigation.navigate('ProfileDetailsScreen', { user:item })}
+              onPress={() => navigation.navigate('OtherProfileScreen', { user:item })}
             >
               <Text style={styles.viewProfileText}>View Profile</Text>
             </TouchableOpacity>

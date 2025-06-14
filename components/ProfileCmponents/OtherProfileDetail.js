@@ -17,15 +17,19 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import Colors from '../../Global/Branding/colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { likeUser, followUser, unfollowUser } from '../../Global/Calls/ApiCalls';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { baseUrl } from '../Global/Urls';
 
 const { width } = Dimensions.get('window');
 const PROFILE_IMAGE_SIZE = 100;
 
-const ProfileDetailsScreen = () => {
+const OtherProfileScreen = ({ route }) => {
   const navigation = useNavigation();
   const focused = useIsFocused();
+  
+  // Get the user data from navigation params
+  const { user } = route?.params || {};
   
   const [currentUserId, setCurrentUserId] = useState(null);
   const [token, setToken] = useState("");
@@ -33,14 +37,21 @@ const ProfileDetailsScreen = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (focused) {
+    if (focused && user) {
       initializeProfile();
     }
-  }, [focused]);
+  }, [focused, user]);
 
   const initializeProfile = async () => {
     try {
       setIsLoading(true);
+      
+      if (!user || !user.id) {
+        Alert.alert('Error', 'User information is missing');
+        navigation.goBack();
+        return;
+      }
+
       const userString = await AsyncStorage.getItem('user');
       const tokenString = await AsyncStorage.getItem('token');
       
@@ -48,7 +59,7 @@ const ProfileDetailsScreen = () => {
         const parsedUser = JSON.parse(userString);
         setCurrentUserId(parsedUser.id);
         setToken(tokenString);
-        await fetchMyProfile(parsedUser.id, tokenString);
+        await fetchOtherUserProfile(user.id, tokenString);
       } else {
         Alert.alert('Error', 'User session not found. Please login again.');
         // Navigate to login screen
@@ -61,7 +72,7 @@ const ProfileDetailsScreen = () => {
     }
   };
 
-  const fetchMyProfile = async (userId, userToken) => {
+  const fetchOtherUserProfile = async (userId, userToken) => {
     try {
       const response = await fetch(
         `${baseUrl}fetch_user_by_id/${userId}`,
@@ -81,7 +92,7 @@ const ProfileDetailsScreen = () => {
       const result = await response.json();
       
       if (result.status === 200) {
-        console.log("My profile data:", result);
+        console.log("Other user profile data:", result);
         setProfileData(result.user);
       } else {
         throw new Error(result.message || 'Failed to fetch profile');
@@ -93,6 +104,109 @@ const ProfileDetailsScreen = () => {
     }
   };
 
+  const handleFollow = async () => {
+    try {
+      if (!profileData || !token || !currentUserId) {
+        Alert.alert('Error', 'Missing required data for follow action');
+        return;
+      }
+
+      let response;
+      if (profileData.profile.already_followed) {
+        response = await unfollowUser(profileData.profile.user_id, token);
+      } else {
+        response = await followUser(profileData.profile.user_id, token, currentUserId);
+      }
+      
+      if (response.status === 200) {
+        setProfileData(prev => ({
+          ...prev,
+          profile: {
+            ...prev.profile,
+            already_followed: !prev.profile.already_followed,
+            follow_request_status: !prev.profile.already_followed ? 'pending' : null
+          }
+        }));
+        Alert.alert('Success', response.message || 'Action completed successfully');
+      } else {
+        Alert.alert('Error', response.message || 'Failed to process follow action');
+      }
+    } catch (error) {
+      console.error('Follow error:', error);
+      Alert.alert('Error', 'Failed to process follow action');
+    }
+  };
+
+  const handleLike = async () => {
+    try {
+      if (!profileData || !currentUserId) {
+        Alert.alert('Error', 'Missing required data for like action');
+        return;
+      }
+
+      const response = await likeUser(profileData.profile.user_id, currentUserId);
+      if (response.status === 200) {
+        setProfileData(prev => ({
+          ...prev,
+          profile: {
+            ...prev.profile,
+            already_liked: !prev.profile.already_liked
+          }
+        }));
+        Alert.alert('Success', response.message || 'Profile liked successfully');
+      } else {
+        Alert.alert('Error', response.message || 'Failed to process like action');
+      }
+    } catch (error) {
+      console.error('Like error:', error);
+      Alert.alert('Error', 'Failed to process like action');
+    }
+  };
+
+  const handleMessage = () => {
+    Alert.alert('Subscribe', 'Please purchase subscription to start chatting', [
+      {
+        text: 'Cancel',
+        style: 'cancel',
+      },
+      {
+        text: 'Subscribe',
+        onPress: () => navigation.navigate('Subscription'),
+      },
+    ]);
+  };
+
+  const handleReport = () => {
+    Alert.alert(
+      'Report User',
+      'Are you sure you want to report this user?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Report',
+          onPress: () => {
+            // Handle report functionality
+            Alert.alert('Reported', 'User has been reported successfully');
+          },
+          style: 'destructive',
+        },
+      ]
+    );
+  };
+
+  const getFollowButtonText = () => {
+    if (profileData?.profile.already_followed) {
+      return 'Following';
+    }
+    if (profileData?.profile.follow_request_status === 'pending') {
+      return 'Requested';
+    }
+    return 'Follow';
+  };
+
   const DetailCard = ({ icon, title, value }) => (
     <View style={styles.detailCard}>
       <Ionicons name={icon} size={24} color={Colors.FontColorI} />
@@ -101,17 +215,21 @@ const ProfileDetailsScreen = () => {
     </View>
   );
 
-  const renderMyGallery = () => {
+  const renderGallery = () => {
+    if (!profileData?.profile.already_followed && profileData?.profile.profile_visibility === 'private') {
+      return (
+        <View style={styles.privateGalleryContainer}>
+          <Ionicons name="lock-closed" size={50} color={Colors.FontColorII} />
+          <Text style={styles.privateGalleryText}>This account is private</Text>
+          <Text style={styles.privateGallerySubtext}>Follow to see their photos</Text>
+        </View>
+      );
+    }
+
     if (!profileData?.images?.length) {
       return (
         <View style={styles.emptyGalleryContainer}>
-          <Text style={styles.emptyGalleryText}>No photos added yet</Text>
-          <TouchableOpacity 
-            style={styles.addPhotoButton}
-            onPress={() => {/* Navigate to add photos */}}
-          >
-            <Text style={styles.addPhotoText}>Add Photos</Text>
-          </TouchableOpacity>
+          <Text style={styles.emptyGalleryText}>Gallery not updated yet</Text>
         </View>
       );
     }
@@ -138,7 +256,7 @@ const ProfileDetailsScreen = () => {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color={Colors.FontColorI} />
-        <Text style={styles.loadingText}>Loading your profile...</Text>
+        <Text style={styles.loadingText}>Loading profile...</Text>
       </View>
     );
   }
@@ -177,10 +295,10 @@ const ProfileDetailsScreen = () => {
             </TouchableOpacity>
             
             <TouchableOpacity 
-              style={styles.editButton}
-              onPress={() => navigation.navigate("EditProfile")}
+              style={styles.reportButton}
+              onPress={handleReport}
             >
-              <Ionicons name="create-outline" size={24} color="#fff" />
+              <Ionicons name="ellipsis-horizontal" size={24} color="#fff" />
             </TouchableOpacity>
           </LinearGradient>
         </ImageBackground>
@@ -216,27 +334,39 @@ const ProfileDetailsScreen = () => {
             </View>
           </View>
 
-          {/* My Profile Action Buttons */}
+          {/* Other Profile Action Buttons */}
           <View style={styles.actionButtons}>
             <TouchableOpacity 
-              style={styles.editProfileButton}
-              onPress={() => navigation.navigate("EditProfileScreen", { profileData })}
-              >
-              <Text style={styles.editProfileButtonText}>Edit Profile</Text>
+              style={[
+                styles.followButton, 
+                profileData?.profile.already_followed && styles.followingButton
+              ]}
+              onPress={handleFollow}
+            >
+              <Text style={[
+                styles.followButtonText,
+                profileData?.profile.already_followed && styles.followingButtonText
+              ]}>
+                {getFollowButtonText()}
+              </Text>
             </TouchableOpacity>
             
             <TouchableOpacity 
               style={styles.iconButton}
-              onPress={() => navigation.navigate("Settings")}
+              onPress={handleMessage}
             >
-              <Ionicons name="settings-outline" size={24} color={Colors.FontColorI} />
+              <Ionicons name="chatbubble-outline" size={24} color={Colors.FontColorI} />
             </TouchableOpacity>
             
             <TouchableOpacity 
-              style={styles.iconButton}
-              onPress={() => navigation.navigate("ProfileStats")}
+              style={[styles.iconButton, profileData?.profile.already_liked && styles.likedButton]}
+              onPress={handleLike}
             >
-              <Ionicons name="analytics-outline" size={24} color={Colors.FontColorI} />
+              <Ionicons 
+                name={profileData?.profile.already_liked ? "heart" : "heart-outline"}
+                size={24} 
+                color={profileData?.profile.already_liked ? "#fff" : Colors.FontColorI}
+              />
             </TouchableOpacity>
           </View>
 
@@ -277,9 +407,9 @@ const ProfileDetailsScreen = () => {
           <View style={styles.galleryContainer}>
             <Text style={styles.sectionTitle}>
               <Ionicons name="images" size={24} color={Colors.FontColorI} style={styles.sectionIcon} />
-              My Gallery
+              Gallery
             </Text>
-            {renderMyGallery()}
+            {renderGallery()}
           </View>
         </View>
       </ScrollView>
@@ -344,7 +474,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  editButton: {
+  reportButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
@@ -420,7 +550,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
     gap: 10,
   },
-  editProfileButton: {
+  followButton: {
     backgroundColor: Colors.FontColorI,
     paddingHorizontal: 30,
     paddingVertical: 10,
@@ -428,10 +558,16 @@ const styles = StyleSheet.create({
     minWidth: 120,
     alignItems: 'center',
   },
-  editProfileButtonText: {
+  followingButton: {
+    backgroundColor: '#F0F0F0',
+  },
+  followButtonText: {
     color: '#fff',
     fontWeight: '600',
     fontSize: 16,
+  },
+  followingButtonText: {
+    color: Colors.FontColorI,
   },
   iconButton: {
     width: 45,
@@ -440,6 +576,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#F0F0F0',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  likedButton: {
+    backgroundColor: Colors.FontColorI,
   },
   bioContainer: {
     marginTop: 20,
@@ -518,6 +657,23 @@ const styles = StyleSheet.create({
     height: (width - 40) / 3 - 4,
     borderRadius: 8,
   },
+  privateGalleryContainer: {
+    alignItems: 'center',
+    padding: 30,
+    backgroundColor: '#F8F8F8',
+    borderRadius: 15,
+  },
+  privateGalleryText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: Colors.FontColorI,
+    marginTop: 15,
+  },
+  privateGallerySubtext: {
+    fontSize: 14,
+    color: Colors.FontColorII,
+    marginTop: 5,
+  },
   emptyGalleryContainer: {
     alignItems: 'center',
     padding: 30,
@@ -527,21 +683,7 @@ const styles = StyleSheet.create({
   emptyGalleryText: {
     fontSize: 16,
     color: Colors.FontColorII,
-    marginBottom: 15,
-  },
-  addPhotoButton: {
-    backgroundColor: Colors.FontColorI,
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 20,
-  },
-  addPhotoText: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: '600',
   },
 });
 
-export default ProfileDetailsScreen;
-
-// export default ProfileDetailsScreen
+export default OtherProfileScreen;
