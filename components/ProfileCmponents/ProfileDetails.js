@@ -19,6 +19,7 @@ import Colors from '../../Global/Branding/colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { baseUrl } from '../Global/Urls';
+import OpenImageModal from '../ImageGallerySrc.js/OpenImageModal';
 
 const { width } = Dimensions.get('window');
 const PROFILE_IMAGE_SIZE = 100;
@@ -26,7 +27,8 @@ const PROFILE_IMAGE_SIZE = 100;
 const ProfileDetailsScreen = () => {
   const navigation = useNavigation();
   const focused = useIsFocused();
-  
+  const [imageModalVisible, setImageModalVisible] = useState(false);
+const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [currentUserId, setCurrentUserId] = useState(null);
   const [token, setToken] = useState("");
   const [profileData, setProfileData] = useState(null);
@@ -102,6 +104,9 @@ const ProfileDetailsScreen = () => {
   );
 
   const renderMyGallery = () => {
+    const maxImages = 6;
+    const canAddMore = !profileData?.images || profileData.images.length < maxImages;
+    
     if (!profileData?.images?.length) {
       return (
         <View style={styles.emptyGalleryContainer}>
@@ -109,31 +114,99 @@ const ProfileDetailsScreen = () => {
           <TouchableOpacity 
             style={styles.addPhotoButton}
             onPress={() => navigation.navigate("ImageGalleryScreen")}
-            >
+          >
             <Text style={styles.addPhotoText}>Add Photos</Text>
           </TouchableOpacity>
         </View>
       );
     }
 
-    return (
-      <FlatList
-        data={profileData.images}
-        numColumns={3}
-        scrollEnabled={false}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => (
-          <TouchableOpacity style={styles.galleryImageContainer}>
-            <Image
-              source={{ uri: `https://muslimdating.coderisehub.com/${item.image_path}` }}
-              style={styles.galleryImage}
-            />
-          </TouchableOpacity>
-        )}
-      />
-    );
-  };
+   // Create gallery data with add button as first item if user can add more
+   const galleryData = [];
+  
+   if (canAddMore) {
+     galleryData.push({ type: 'add', id: 'add-button' });
+   }
+   
+   // Add existing images
+   profileData.images.forEach((image, index) => {
+     galleryData.push({ 
+       type: 'image', 
+       ...image, 
+       originalIndex: index 
+     });
+   });
+ 
+   return (
+     <View style={styles.galleryGrid}>
+       <FlatList
+         data={galleryData}
+         numColumns={3}
+         scrollEnabled={false}
+         keyExtractor={(item) => item.id.toString()}
+         renderItem={({ item, index }) => {
+           if (item.type === 'add') {
+             return (
+               <TouchableOpacity 
+                 style={styles.addImageCard}
+                 onPress={() => navigation.navigate("ImageGalleryScreen")}
+               >
+                 <Ionicons name="add" size={30} color={Colors.FontColorI} />
+                 <Text style={styles.addImageText}>Add Photo</Text>
+               </TouchableOpacity>
+             );
+           }
+           
+           return (
+             <TouchableOpacity 
+               style={styles.galleryImageContainer}
+               onPress={() => openImageViewer(item.originalIndex)}
+             >
+               <Image
+                 source={{ uri: `https://muslimdating.coderisehub.com/${item.image_path}` }}
+                 style={styles.galleryImage}
+               />
+               {item.is_profile_picture === 1 && (
+                 <View style={styles.profileImageBadge}>
+                   <Ionicons name="star" size={12} color="#fff" />
+                 </View>
+               )}
+             </TouchableOpacity>
+           );
+         }}
+       />
+       
+       {/* Photo count indicator */}
+       <View style={styles.photoCountContainer}>
+         <Text style={styles.photoCountText}>
+           {profileData.images.length} of {maxImages} photos
+         </Text>
+       </View>
+     </View>
+   );
+ };
+ 
 
+ const openImageViewer = (imageIndex) => {
+  setSelectedImageIndex(imageIndex);
+  setImageModalVisible(true);
+};
+
+// Image viewer modal component
+const renderImageViewerModal = () => {
+  if (!profileData?.images?.length) return null;
+  
+  return (
+ <OpenImageModal 
+ imageModalVisible={imageModalVisible}
+ setImageModalVisible={setImageModalVisible}
+ profileData={profileData}
+ setSelectedImageIndex={setSelectedImageIndex}
+ selectedImageIndex={selectedImageIndex}
+ OtherUSerImage={true}
+ />
+  );
+};
   if (isLoading) {
     return (
       <View style={styles.loadingContainer}>
@@ -283,6 +356,7 @@ const ProfileDetailsScreen = () => {
           </View>
         </View>
       </ScrollView>
+      {renderImageViewerModal()}
     </View>
   );
 };
